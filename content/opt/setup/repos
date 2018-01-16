@@ -1,0 +1,36 @@
+#!/bin/bash
+
+CONF_DIR=/etc/icinga2/conf.d/atlas-config/
+
+# CONFIGS
+if [ -z ${GIT_CONFIG+x} ]; then 
+	echo "REPO CONFIG: Es wird kein Repository geklont."
+else 
+
+	if [ -d "$CONF_DIR/.git" ]
+	then
+		cd $CONF_DIR && git pull
+	else		
+		echo "REPO CONFIG: Trying to clone config dir."
+		mkdir -p $CONF_DIR
+		git clone $GIT_CONFIG $CONF_DIR
+	fi
+fi
+
+# PLUGINS
+PLUGIN_DIR=/usr/lib/nagios/plugins/atlas-plugins
+
+if [ -z ${GIT_PLUGIN+x} ]; then
+        echo "REPO CONFIG: Es wird kein Repository geklont."
+else
+
+        if [ -d "$PLUGIN_DIR/.git" ]
+        then
+                cd $PLUGIN_DIR && git pull
+        else
+                echo "REPO PLUGIN: Trying to clone plugin dir."
+                mkdir -p $PLUGIN_DIR
+                git clone $GIT_PLUGIN $PLUGIN_DIR
+        fi
+fi
+

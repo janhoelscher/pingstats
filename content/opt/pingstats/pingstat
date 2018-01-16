@@ -1,0 +1,46 @@
+#! /usr/bin/env bash
+
+# Requiered 
+host="false"
+
+# Constants
+USAGE="Das ist ein Test"
+CHECK_PING="/usr/lib/nagios/plugins/check_ping"
+
+while getopts ":H:n:d:h:" opt; do 
+	case $opt in 
+		H ) host=$OPTARG;;
+		n ) hostname=$OPTARG;;
+		d ) echo "option -d ist gesettz";;
+		h ) echo $USAGE
+			exit 0 
+			;;
+	esac
+done
+
+if [ "$host" == "false" ]
+then
+	exit 1
+fi
+
+if [ -z "$hostname" ]
+then
+	hostname=$(echo $host)
+fi
+
+output=$($CHECK_PING -4 -H $host -w 99%,9999 -c 100%,10000)
+
+if [ $? -ne 0 ]
+then 
+	ms="0"
+	pl="100"
+else
+	ms=$(echo $output | cut -d"|" -f2 | cut -d";" -f1 | cut -d"=" -f2 | cut -d"m" -f1 | cut -d"." -f1)
+	pl=$(echo $output | cut -d"|" -f2 | cut -d"=" -f3 | cut -d"%" -f1)
+fi
+
+
+curl -i -XPOST 'http://atlas-pingstats-influxdb:8086/write?db=pingstats' \
+	--data-binary "rtt,host=$hostname value=$ms"
+curl -i -XPOST 'http://atlas-pingstats-influxdb:8086/write?db=pingstats' \
+	--data-binary "plr,host=$hostname value=$pl"

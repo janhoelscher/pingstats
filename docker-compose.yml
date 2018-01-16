@@ -1,0 +1,36 @@
+version: "3.3"
+services:
+
+  pingstats-worker:
+    build: .
+    container_name: atlas-pingstats-worker
+    restart: on-failure:5
+    hostname: pingstatsworker.atlas-it.de
+    dns: 10.8.0.1
+    volumes:
+     - pingstats-worker:/var/spool/cron/crontab
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: atlas-pingstats-grafana
+    restart: on-failure:5
+    hostname: pingstats.atlas-it.de
+    dns: 10.8.0.1
+    ports:
+     - "3003:3000"
+    volumes:
+     - pingstats-grafana:/var/lib/grafana
+
+  influxdb:
+    image: influxdb
+    container_name: atlas-pingstats-influxdb
+    restart: on-failure:5
+    hostname: pingstatsdb.atlas-it.de
+    dns: 10.8.0.1
+    volumes:
+       - pingstats-influxdb:/var/lib/influxdb
+
+volumes:
+  pingstats-influxdb:
+  pingstats-grafana:
+  pingstats-worker:

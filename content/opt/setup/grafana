@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Create Datasource
+curl 'http://admin:admin@atlas-pingstats-grafana:3000/api/datasources' -H "Content-Type: application/json" -X POST \
+--data-binary '{"name":"Pingstats","type":"influxdb","url":"http://atlas-pingstats-influxdb:8086","access":"proxy","isDefault":true,"database":"pingstats"}'
+
